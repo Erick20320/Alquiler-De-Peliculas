@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.RestController;
 import net.javaguides.springboot.model.Pelicula;
 import net.javaguides.springboot.repository.PeliculaRepository;
 
-@CrossOrigin(origins = "http://localhost:3000/")
+@CrossOrigin(origins = "http://192.168.1.24:3000/")
 @RestController
 @RequestMapping("/api/v1/")
 public class PeliculaController {
