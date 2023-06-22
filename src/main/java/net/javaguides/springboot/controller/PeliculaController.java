@@ -3,9 +3,13 @@ package net.javaguides.springboot.controller;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -27,12 +31,48 @@ public class PeliculaController {
 	public List<Pelicula> getAllPeliculas() {
 		return peliculaRepository.findAll();
 	}
-	
-	//Crear Peliculas
-	
+
+	// Crear Peliculas
+
 	@PostMapping("/peliculas")
-	  public Pelicula CreatePeliculas(@RequestBody Pelicula pelicula) {
-	    return peliculaRepository.save(pelicula);
-	  }
+	public Pelicula CreatePeliculas(@RequestBody Pelicula pelicula) {
+		return peliculaRepository.save(pelicula);
+	}
+
+	// Obtener peliculas por id
+
+	@GetMapping("/peliculas/{id}")
+	public ResponseEntity<Pelicula> getPeliculaPorId(@PathVariable Long id) {
+		Pelicula pelicula = peliculaRepository.findById(id).orElse(null);
+
+		if (pelicula != null) {
+			return new ResponseEntity<>(pelicula, HttpStatus.OK);
+		} else {
+			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+		}
+	}
+
+	// Actualizar pelicula
+
+	@PutMapping("/peliculas/{id}")
+	public ResponseEntity<Pelicula> updatePelicula(@PathVariable Long id, @RequestBody Pelicula peliculaDatos) {
+		Pelicula pelicula = peliculaRepository.findById(id).orElse(null);
+
+		if (pelicula != null) {
+			pelicula.setTitulo(peliculaDatos.getTitulo());
+			pelicula.setGenero(peliculaDatos.getGenero());
+			pelicula.setAnioEstreno(peliculaDatos.getAnioEstreno());
+			pelicula.setDuracionMinutos(peliculaDatos.getDuracionMinutos());
+			pelicula.setDirector(peliculaDatos.getDirector());
+			pelicula.setSinopsis(peliculaDatos.getSinopsis());
+			pelicula.setDisponible(peliculaDatos.getDisponible());
+			pelicula.setImagen(peliculaDatos.getImagen());
+
+			Pelicula peliculaActualizada = peliculaRepository.save(pelicula);
+			return new ResponseEntity<>(peliculaActualizada, HttpStatus.OK);
+		} else {
+			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+		}
+	}
 
 }
