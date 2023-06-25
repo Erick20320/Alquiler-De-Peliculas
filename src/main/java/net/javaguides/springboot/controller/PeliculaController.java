@@ -1,6 +1,12 @@
 package net.javaguides.springboot.controller;
 
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.List;
+import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -13,12 +19,16 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import net.javaguides.springboot.model.Pelicula;
 import net.javaguides.springboot.repository.PeliculaRepository;
 
-@CrossOrigin(origins = "http://192.168.1.24:3000/")
+@CrossOrigin(origins = "http://localhost:3000")
 @RestController
 @RequestMapping("/api/v1/")
 public class PeliculaController {
@@ -36,9 +46,51 @@ public class PeliculaController {
 	// Crear Peliculas
 
 	@PostMapping("/peliculas")
-	public Pelicula CreatePeliculas(@RequestBody Pelicula pelicula) {
-		return peliculaRepository.save(pelicula);
+	public ResponseEntity<Pelicula> createPelicula(@RequestParam("imagen") MultipartFile imagen,
+	        @RequestParam("pelicula") String peliculaJson) throws IOException {
+
+	    try {
+	        if (imagen.isEmpty()) {
+	            // La imagen es obligatoria
+	            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+	        }
+
+	        // Obtener los bytes de la imagen
+	        byte[] imagenBytes = imagen.getBytes();
+
+	        // Crear una instancia de la película con los datos proporcionados
+	        Pelicula pelicula = new ObjectMapper().readValue(peliculaJson, Pelicula.class);
+	        Pelicula nuevaPelicula = peliculaRepository.save(pelicula);
+
+	        // Obtener el ID de la película
+	        Long peliculaId = nuevaPelicula.getId();
+
+	        // Generar un nombre único para el archivo de imagen
+	        String nombreImagen = peliculaId + "_" + UUID.randomUUID().toString() + "_" + imagen.getOriginalFilename();
+
+	        // Ruta del directorio de imágenes dentro del proyecto
+	        String directorioImagenes = "src/img/";
+
+	        // Obtener la ruta absoluta del directorio de imágenes
+	        String rutaDirectorioImagenes = new File(directorioImagenes).getAbsolutePath();
+
+	        // Guardar la imagen en el directorio
+	        String rutaImagen = rutaDirectorioImagenes + File.separator + nombreImagen;
+	        Path rutaImagenPath = Paths.get(rutaImagen);
+	        Files.write(rutaImagenPath, imagenBytes);
+
+	        // Actualizar la ruta de la imagen en la película
+	        nuevaPelicula.setImagen(rutaImagenPath.toString());
+	        peliculaRepository.save(nuevaPelicula);
+
+	        return new ResponseEntity<>(nuevaPelicula, HttpStatus.CREATED);
+	    } catch (Exception e) {
+	        // Manejar el error y devolver una respuesta de error adecuada
+	        System.err.println("Error al guardar la imagen: " + e.getMessage());
+	        return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+	    }
 	}
+
 
 	// Obtener peliculas por id
 

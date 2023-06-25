@@ -9,5 +9,4 @@ public class AlquilerDePeliculasApplication {
 	public static void main(String[] args) {
 		SpringApplication.run(AlquilerDePeliculasApplication.class, args);
 	}
-
 }
