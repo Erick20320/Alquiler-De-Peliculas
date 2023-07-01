@@ -47,50 +47,54 @@ public class PeliculaController {
 
 	@PostMapping("/peliculas")
 	public ResponseEntity<Pelicula> createPelicula(@RequestParam("imagen") MultipartFile imagen,
-	        @RequestParam("pelicula") String peliculaJson) throws IOException {
+			@RequestParam("pelicula") String peliculaJson) throws IOException {
 
-	    try {
-	        if (imagen.isEmpty()) {
-	            // La imagen es obligatoria
-	            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-	        }
+		try {
+			if (imagen.isEmpty()) {
+				// La imagen es obligatoria
+				return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+			}
 
-	        // Obtener los bytes de la imagen
-	        byte[] imagenBytes = imagen.getBytes();
+			// Obtener los bytes de la imagen
+			byte[] imagenBytes = imagen.getBytes();
 
-	        // Crear una instancia de la película con los datos proporcionados
-	        Pelicula pelicula = new ObjectMapper().readValue(peliculaJson, Pelicula.class);
-	        Pelicula nuevaPelicula = peliculaRepository.save(pelicula);
+			// Crear una instancia de la película con los datos proporcionados
+			Pelicula pelicula = new ObjectMapper().readValue(peliculaJson, Pelicula.class);
+			Pelicula nuevaPelicula = peliculaRepository.save(pelicula);
 
-	        // Obtener el ID de la película
-	        Long peliculaId = nuevaPelicula.getId();
+			// Obtener el ID de la película
+			Long peliculaId = nuevaPelicula.getId();
 
-	        // Generar un nombre único para el archivo de imagen
-	        String nombreImagen = peliculaId + "_" + UUID.randomUUID().toString() + "_" + imagen.getOriginalFilename();
+			// Generar un nombre único para el archivo de imagen
+			String nombreImagen = peliculaId + "_" + UUID.randomUUID().toString() + "_" + imagen.getOriginalFilename();
 
-	        // Ruta del directorio de imágenes dentro del proyecto
-	        String directorioImagenes = "src/img/";
+			// Ruta del directorio de imágenes dentro del proyecto
+			String directorioImagenes = "src/main/resources/static/img/";
 
-	        // Obtener la ruta absoluta del directorio de imágenes
-	        String rutaDirectorioImagenes = new File(directorioImagenes).getAbsolutePath();
+			// Obtener la ruta absoluta del directorio de imágenes
+			String rutaDirectorioImagenes = new File(directorioImagenes).getAbsolutePath();
 
-	        // Guardar la imagen en el directorio
-	        String rutaImagen = rutaDirectorioImagenes + File.separator + nombreImagen;
-	        Path rutaImagenPath = Paths.get(rutaImagen);
-	        Files.write(rutaImagenPath, imagenBytes);
+			// Guardar la imagen en el directorio
+			String rutaImagen = rutaDirectorioImagenes + File.separator + nombreImagen;
+			Path rutaImagenPath = Paths.get(rutaImagen);
+			Files.write(rutaImagenPath, imagenBytes);
 
-	        // Actualizar la ruta de la imagen en la película
-	        nuevaPelicula.setImagen(rutaImagenPath.toString());
-	        peliculaRepository.save(nuevaPelicula);
+			// Obtener la URL completa de la imagen
+			String urlBaseBackend = "http://localhost:8080/api/v1/peliculas/"; // Cambia esto con la URL base de tu
+																				// backend
+			String urlImagenCompleta = urlBaseBackend + "img/" + nombreImagen;
 
-	        return new ResponseEntity<>(nuevaPelicula, HttpStatus.CREATED);
-	    } catch (Exception e) {
-	        // Manejar el error y devolver una respuesta de error adecuada
-	        System.err.println("Error al guardar la imagen: " + e.getMessage());
-	        return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
-	    }
+			// Actualizar la ruta de la imagen en la película
+			nuevaPelicula.setImagen(urlImagenCompleta);
+			peliculaRepository.save(nuevaPelicula);
+
+			return new ResponseEntity<>(nuevaPelicula, HttpStatus.CREATED);
+		} catch (Exception e) {
+			// Manejar el error y devolver una respuesta de error adecuada
+			System.err.println("Error al guardar la imagen: " + e.getMessage());
+			return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+		}
 	}
-
 
 	// Obtener peliculas por id
 
