@@ -17,7 +17,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -28,7 +27,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import net.javaguides.springboot.model.Pelicula;
 import net.javaguides.springboot.repository.PeliculaRepository;
 
-@CrossOrigin(origins = "http://localhost:3000")
+@CrossOrigin(origins = "http://192.168.1.24:3000")
 @RestController
 @RequestMapping("/api/v1/")
 public class PeliculaController {
@@ -80,8 +79,8 @@ public class PeliculaController {
 			Files.write(rutaImagenPath, imagenBytes);
 
 			// Obtener la URL completa de la imagen
-			String urlBaseBackend = "http://localhost:8080/api/v1/peliculas/"; // Cambia esto con la URL base de tu
-																				// backend
+			String urlBaseBackend = "http://192.168.1.24:8080/api/v1/peliculas/"; // Cambia esto con la URL base de tu
+																					// backend
 			String urlImagenCompleta = urlBaseBackend + "img/" + nombreImagen;
 
 			// Actualizar la ruta de la imagen en la película
@@ -109,30 +108,55 @@ public class PeliculaController {
 		}
 	}
 
-	// Actualizar pelicula
-
+	// Actualizar película
 	@PutMapping("/peliculas/{id}")
-	public ResponseEntity<Pelicula> updatePelicula(@PathVariable Long id, @RequestBody Pelicula peliculaDatos) {
-		Pelicula pelicula = peliculaRepository.findById(id).orElse(null);
+	public ResponseEntity<Pelicula> updatePelicula(@PathVariable Long id,
+			@RequestParam(value = "imagen", required = false) MultipartFile imagen,
+			@RequestParam(value = "pelicula", required = false) String peliculaJson) throws IOException {
 
-		if (pelicula != null) {
-			pelicula.setTitulo(peliculaDatos.getTitulo());
-			pelicula.setGenero(peliculaDatos.getGenero());
-			pelicula.setAnioEstreno(peliculaDatos.getAnioEstreno());
-			pelicula.setDuracionMinutos(peliculaDatos.getDuracionMinutos());
-			pelicula.setDirector(peliculaDatos.getDirector());
-			pelicula.setSinopsis(peliculaDatos.getSinopsis());
-			pelicula.setDisponible(peliculaDatos.getDisponible());
-			pelicula.setImagen(peliculaDatos.getImagen());
+		try {
+			Pelicula pelicula = peliculaRepository.findById(id).orElse(null);
 
-			Pelicula peliculaActualizada = peliculaRepository.save(pelicula);
-			return new ResponseEntity<>(peliculaActualizada, HttpStatus.OK);
-		} else {
-			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+			if (pelicula != null) {
+				if (peliculaJson != null) {
+					ObjectMapper objectMapper = new ObjectMapper();
+					Pelicula peliculaDatos = objectMapper.readValue(peliculaJson, Pelicula.class);
+					pelicula.setTitulo(peliculaDatos.getTitulo());
+					pelicula.setGenero(peliculaDatos.getGenero());
+					pelicula.setAnioEstreno(peliculaDatos.getAnioEstreno());
+					pelicula.setDuracionMinutos(peliculaDatos.getDuracionMinutos());
+					pelicula.setDirector(peliculaDatos.getDirector());
+					pelicula.setSinopsis(peliculaDatos.getSinopsis());
+					pelicula.setDisponible(peliculaDatos.getDisponible());
+				}
+
+				if (imagen != null && !imagen.isEmpty()) {
+					String nombreImagen = pelicula.getId() + "_" + UUID.randomUUID().toString() + "_"
+							+ imagen.getOriginalFilename();
+					String rutaImagen = "src/main/resources/static/img/" + nombreImagen;
+					Path rutaImagenPath = Paths.get(rutaImagen);
+					Files.write(rutaImagenPath, imagen.getBytes());
+
+					// Agregar la URL base del backend al nombre de la imagen
+					String urlBaseBackend = "http://192.168.1.24:8080/api/v1/peliculas/";
+					String urlImagenCompleta = urlBaseBackend + "img/" + nombreImagen;
+
+					pelicula.setImagen(urlImagenCompleta);
+				}
+
+				Pelicula peliculaActualizada = peliculaRepository.save(pelicula);
+				return new ResponseEntity<>(peliculaActualizada, HttpStatus.OK);
+			} else {
+				return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+			return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 	}
 
 	// Eliminar pelicula por id
+
 	@DeleteMapping("/peliculas/{id}")
 	public ResponseEntity<?> deletePelicula(@PathVariable Long id) {
 		try {
