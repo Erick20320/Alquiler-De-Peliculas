@@ -1,4 +1,4 @@
-package net.javaguides.springboot.config;
+package net.java.springboot.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -12,7 +12,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import lombok.RequiredArgsConstructor;
-import net.javaguides.springboot.repository.UserRepository;
+import net.java.springboot.repository.UserRepository;
 
 @Configuration
 @RequiredArgsConstructor

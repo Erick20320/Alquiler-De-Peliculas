@@ -1,4 +1,4 @@
-package net.javaguides.springboot.controller;
+package net.java.springboot.controller;
 
 import java.io.File;
 import java.io.IOException;
@@ -24,8 +24,8 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import net.javaguides.springboot.model.Pelicula;
-import net.javaguides.springboot.repository.PeliculaRepository;
+import net.java.springboot.model.Pelicula;
+import net.java.springboot.repository.PeliculaRepository;
 
 @CrossOrigin(origins = "http://192.168.1.24:3000")
 @RestController

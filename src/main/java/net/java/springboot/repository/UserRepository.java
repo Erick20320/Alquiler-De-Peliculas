@@ -1,9 +1,9 @@
-package net.javaguides.springboot.repository;
+package net.java.springboot.repository;
 
 import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;
 
-import net.javaguides.springboot.user.User;
+import net.java.springboot.user.User;
 
 public interface UserRepository extends JpaRepository<User, Integer> {
 

@@ -1,4 +1,4 @@
-package net.javaguides.springboot.config;
+package net.java.springboot.config;
 
 import java.io.IOException;
 

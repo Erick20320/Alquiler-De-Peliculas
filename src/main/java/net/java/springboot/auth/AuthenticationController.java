@@ -1,4 +1,4 @@
-package net.javaguides.springboot.auth;
+package net.java.springboot.auth;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

@@ -1,4 +1,4 @@
-package net.javaguides.springboot.user;
+package net.java.springboot.user;
 
 import java.util.Collection;
 //import java.util.List;

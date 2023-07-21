@@ -1,4 +1,4 @@
-package net.javaguides.springboot.auth;
+package net.java.springboot.auth;
 
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -6,9 +6,9 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import lombok.RequiredArgsConstructor;
-import net.javaguides.springboot.config.JwtService;
-import net.javaguides.springboot.repository.UserRepository;
-import net.javaguides.springboot.user.User;
+import net.java.springboot.config.JwtService;
+import net.java.springboot.repository.UserRepository;
+import net.java.springboot.user.User;
 
 @Service
 @RequiredArgsConstructor
